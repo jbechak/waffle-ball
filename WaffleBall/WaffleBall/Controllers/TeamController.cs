@@ -13,38 +13,36 @@ namespace WaffleBall.Controllers
 
         private ITeamDao dao = new DBTeamDao();
 
-        // GET: api/<TeamController>
+       
         [HttpGet]
         public List<Team> GetAllTeams()
         {
             Console.WriteLine("Team Controller Get All");
-
             return dao.GetAllTeams();
         }
 
-        // GET api/<TeamController>/5
+        
         [HttpGet("{id}")]
         public Team Get(int id)
         {
-            
             return dao.GetTeam(id);
         }
 
-        // POST api/<TeamController>
+      
         [HttpPost]
-        public void Post([FromBody] string value)
+        public Team Post([FromBody] TeamDto dto)
         {
+            return dao.CreateTeam(dto);
         }
 
-        // PUT api/<TeamController>/5
+        
         [HttpPut("{id}")]
         public Team Put(int id, [FromBody] TeamRecordDto record)
         {
-
             return dao.UpdateTeamRecord(id, record);
         }
 
-        // DELETE api/<TeamController>/5
+   
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

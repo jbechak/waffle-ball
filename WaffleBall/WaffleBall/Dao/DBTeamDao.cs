@@ -87,6 +87,36 @@ namespace WaffleBall.Dao
             return team;
         }
 
+        public Team CreateTeam(TeamDto dto)
+        {
+            Console.WriteLine("CreateTeam Dao");
+            var team = new Team();
+            int id = 1;
+            try
+            {
+                string connectionString = "Data Source = localhost; Initial Catalog = WaffleBall; Integrated Security = True";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("CreateTeam", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@city", dto.City);
+                        command.Parameters.AddWithValue("@name", dto.Name);
+                        command.Parameters.AddWithValue("@conference", dto.Conference);
+                        command.Parameters.AddWithValue("@division", dto.Division);
+
+                        id = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.ToString());
+            }
+            return GetTeam(id);
+        }
+
         public Team UpdateTeamRecord(int id, TeamRecordDto record)
         {
             try

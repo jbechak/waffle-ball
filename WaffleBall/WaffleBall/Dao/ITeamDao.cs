@@ -9,6 +9,8 @@ namespace WaffleBall.Dao
 
         Team GetTeam(int id);
 
+        Team CreateTeam(TeamDto dto);
+
         Team UpdateTeamRecord(int id, TeamRecordDto record);
     }
 }
