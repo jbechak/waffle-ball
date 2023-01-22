@@ -1,34 +1,39 @@
 <template>
     <div>
+        <div v-if="isLoading == true">
+            Loading
+        </div>
+        <div v-else>
+            <div id="standings-title">
+                National Waffleball League Standings
+            </div>
+            <div v-for="conference in $store.state.conferences" :key="conference">
+                <conference-standings :conference="conference" />
+            </div>
 
-        <div id="table-head">
-            <div id="team">Team</div>
-            <div id="wins">W</div>
-            <div id="losses">L</div>
-            <div id="points">Pts</div>
         </div>
-        <div v-for="team in teams" :key="team.id">
-            <team-standing :team="team" />
-        </div>
+
+
     </div>
 </template>
 
 <script>
 import TeamService from '@/services/TeamService';
-import TeamStanding from './TeamStanding.vue';
+import ConferenceStandings from './ConferenceStandings.vue';
+
 export default {
-    components: { TeamStanding },
+    components: { ConferenceStandings },
     data() {
-    return {
-      teams: [],
-      isLoading: true
-    };
-    
-  },
+        return {
+            teams: [],
+            isLoading: true
+        };
+
+    },
     created() {
         TeamService.getAllTeams()
             .then((response) => {
-                this.teams = response.data;
+                this.$store.commit("SET_TEAMS", response.data);
                 this.isLoading = false;
             });
     }
@@ -36,35 +41,8 @@ export default {
 </script>
 
 <style>
-#table-head {
-    display: flex;
-    justify-content: stretch;
+#standings-title {
+    font-weight: 600;
+    font-size: 25px;
 }
-
-#team {
-    /* flex: 5, 1, 0; */
-    width: 250px;
-    text-align: left;
-    
-}
-
-#wins {
-    /* flex: 1, 1, 0; */
-    width: 50px;
-    text-align: left;
-}
-
-#losses {
-    /* flex: 1, 1, 0; */
-    width: 50px;
-    text-align: left;
-}
-
-#points {
-    /* flex: 1, 1, 0; */
-    width: 50px;
-    text-align: left;
-}
-
-
 </style>
