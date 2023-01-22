@@ -4,7 +4,11 @@
 DROP PROCEDURE IF EXISTS GetAllTeams;
 DROP PROCEDURE IF EXISTS GetTeam;
 DROP PROCEDURE IF EXISTS GetAllGames;
-DROP PROCEDURE IF EXISTS GetAllGamesWithTeamNames;
+DROP PROCEDURE IF EXISTS GetGamesByTeam;
+DROP PROCEDURE IF EXISTS GetGame;
+DROP PROCEDURE IF EXISTS CreateGame;
+DROP PROCEDURE IF EXISTS ScoreGame;
+--DROP PROCEDURE IF EXISTS GetAllGamesWithTeamNames;
 DROP PROCEDURE IF EXISTS CreateTeam;
 DROP PROCEDURE IF EXISTS UpdateTeamRecord;
 
@@ -29,7 +33,8 @@ CREATE TABLE Game (
 	[Home Points] INT,
 	[Visitor Points] INT,
 	[Game Time] DATETIME,
-	Status VARCHAR(15),
+	Status VARCHAR(15) DEFAULT 'SCHEDULED',
+	Winner AS dbo.declare_winner(ID), 
 
 	CONSTRAINT chk_Status CHECK (Status IN ('SCHEDULED', 'ACTIVE', 'FINISHED'))
 );
@@ -116,16 +121,17 @@ AS
 SELECT * FROM Team
 WHERE ID = @ID;
 
-GO
-CREATE Procedure GetAllGames
-AS
-SELECT * FROM Game;
+--GO
+--CREATE Procedure GetAllGames
+--AS
+--SELECT * FROM Game;
 
 
 GO
-CREATE PROCEDURE GetAllGamesWithTeamNames
+CREATE PROCEDURE GetAllGames
 AS
 SELECT 
+Game.ID,
 home_team.ID AS [Home ID],
 home_team.City AS [Home City],
 home_team.Name AS [Home Team Name],
@@ -135,13 +141,83 @@ visitor.ID AS [Visitor ID],
 visitor.City AS [Visitor City],
 visitor.Name AS [Visitor Team Name],
 [Visitor Points],
-[Game Time]
+
+[Game Time], Status, Winner
 
 FROM Game 
 JOIN Team home_team 
 ON Game.[Home Team ID] = home_team.ID
 JOIN Team visitor
 ON Game.[Visitor ID] = visitor.ID;
+
+
+GO
+CREATE PROCEDURE GetGamesByTeam @teamId INT
+AS
+SELECT 
+Game.ID,
+home_team.ID AS [Home ID],
+home_team.City AS [Home City],
+home_team.Name AS [Home Team Name],
+[Home Points],
+
+visitor.ID AS [Visitor ID],
+visitor.City AS [Visitor City],
+visitor.Name AS [Visitor Team Name],
+[Visitor Points],
+
+[Game Time], Status, Winner
+
+FROM Game 
+JOIN Team home_team 
+ON Game.[Home Team ID] = home_team.ID
+JOIN Team visitor
+ON Game.[Visitor ID] = visitor.ID
+WHERE [Home Team ID] = @teamId OR [Visitor ID] = @teamId;
+
+
+GO
+CREATE PROCEDURE GetGame @id INT
+AS
+SELECT 
+Game.ID,
+home_team.ID AS [Home ID],
+home_team.City AS [Home City],
+home_team.Name AS [Home Team Name],
+[Home Points],
+
+visitor.ID AS [Visitor ID],
+visitor.City AS [Visitor City],
+visitor.Name AS [Visitor Team Name],
+[Visitor Points],
+
+[Game Time], Status, Winner
+
+FROM Game 
+JOIN Team home_team 
+ON Game.[Home Team ID] = home_team.ID
+JOIN Team visitor
+ON Game.[Visitor ID] = visitor.ID
+
+WHERE Game.ID = @id;
+
+
+GO
+CREATE PROCEDURE CreateGame @homeId INT, @visitorId INT, @gameTime DATETIME
+AS
+INSERT INTO Game ([Home Team ID], [Visitor ID], [Game Time])
+VALUES (@homeId, @visitorId, @gameTime)
+SELECT CAST(@@IDENTITY AS INT);
+
+
+GO
+CREATE PROCEDURE ScoreGame @homePoints INT, @visitorPoints INT, @id INT
+AS
+UPDATE Game
+SET [Home Points] = @homePoints,
+[Visitor Points] = @visitorPoints,
+Status = 'FINISHED'
+WHERE ID = @id;
 
 
 GO
