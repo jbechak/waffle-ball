@@ -37,3 +37,26 @@ BEGIN
 
 	RETURN @WinnerID
 END;
+
+
+CREATE FUNCTION total_points (@id INT)
+RETURNS INT 
+AS
+BEGIN
+	DECLARE @result INT;
+	DECLARE @homePts INT;
+	DECLARE @visitorPts INT;
+
+	SELECT @homePts = 
+	(SELECT ISNULL(SUM([Visitor Points]), 0)
+	FROM Game
+	WHERE [Visitor ID] = @id);
+	
+	
+	SELECT @visitorPts =
+	(SELECT ISNULL(SUM([Home Points]), 0)
+	FROM Game
+	WHERE [Home Team ID] = @id);
+
+	RETURN @homePts + @visitorPts;
+END

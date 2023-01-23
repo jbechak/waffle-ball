@@ -11,6 +11,7 @@ DROP PROCEDURE IF EXISTS ScoreGame;
 --DROP PROCEDURE IF EXISTS GetAllGamesWithTeamNames;
 DROP PROCEDURE IF EXISTS CreateTeam;
 DROP PROCEDURE IF EXISTS UpdateTeamRecord;
+DROP PROCEDURE IF EXISTS TotalPoints;
 
 DROP TABLE IF EXISTS Game;
 DROP TABLE IF EXISTS team;
@@ -23,7 +24,7 @@ CREATE TABLE Team (
 	Division VARCHAR(10) NOT NULL,
 	Wins INT DEFAULT 0,
 	Losses INT DEFAULT 0,
-	Points INT DEFAULT 0
+	Points AS dbo.total_points(ID)
 );
 
 CREATE TABLE Game (
@@ -235,4 +236,22 @@ UPDATE Team
 SET Wins = @wins, Losses = @losses, Points = @points
 WHERE ID = @ID;
 
+
+GO
+CREATE PROCEDURE TotalPoints @teamId INT
+AS
+SELECT TOP 1 (SELECT SUM([Visitor Points])
+	FROM Game
+	WHERE [Visitor ID] = @teamId) + 
+	
+	(SELECT SUM([Home Points]) FROM Game
+	WHERE [Home Team ID] = @teamId)
+	AS Total
+
+	FROM Game;
+
+
 COMMIT;
+
+
+
