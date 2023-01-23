@@ -8,7 +8,6 @@ DROP PROCEDURE IF EXISTS GetGamesByTeam;
 DROP PROCEDURE IF EXISTS GetGame;
 DROP PROCEDURE IF EXISTS CreateGame;
 DROP PROCEDURE IF EXISTS ScoreGame;
---DROP PROCEDURE IF EXISTS GetAllGamesWithTeamNames;
 DROP PROCEDURE IF EXISTS CreateTeam;
 DROP PROCEDURE IF EXISTS UpdateTeamRecord;
 DROP PROCEDURE IF EXISTS TotalPoints;
@@ -22,8 +21,8 @@ CREATE TABLE Team (
 	Name VARCHAR(50) NOT NULL,
 	Conference VARCHAR(10) NOT NULL,
 	Division VARCHAR(10) NOT NULL,
-	Wins INT DEFAULT 0,
-	Losses INT DEFAULT 0,
+	Wins AS dbo.winCount(ID),
+	Losses AS dbo.lossCount(ID),
 	Points AS dbo.total_points(ID)
 );
 
@@ -121,11 +120,6 @@ CREATE Procedure GetTeam @ID int
 AS
 SELECT * FROM Team
 WHERE ID = @ID;
-
---GO
---CREATE Procedure GetAllGames
---AS
---SELECT * FROM Game;
 
 
 GO
@@ -229,12 +223,12 @@ VALUES (@city, @name, @conference, @division)
 SELECT CAST(@@IDENTITY AS INT);
 
 
-GO
-CREATE PROCEDURE UpdateTeamRecord @ID int, @wins int, @losses int, @points int
-AS
-UPDATE Team
-SET Wins = @wins, Losses = @losses, Points = @points
-WHERE ID = @ID;
+--GO
+--CREATE PROCEDURE UpdateTeamRecord @ID int, @wins int, @losses int
+--AS
+--UPDATE Team
+--SET Wins = @wins, Losses = @losses
+--WHERE ID = @ID;
 
 
 GO
@@ -252,6 +246,3 @@ SELECT TOP 1 (SELECT SUM([Visitor Points])
 
 
 COMMIT;
-
-
-

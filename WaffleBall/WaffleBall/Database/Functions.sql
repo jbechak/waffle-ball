@@ -60,3 +60,34 @@ BEGIN
 
 	RETURN @homePts + @visitorPts;
 END
+
+
+CREATE FUNCTION winCount (@id INT)
+RETURNS INT
+AS
+BEGIN
+
+	DECLARE @result INT;
+
+	SELECT @result = ISNULL(COUNT(Winner), 0)
+	FROM Game
+	WHERE Winner = @id;
+
+	RETURN @result;
+END
+
+
+CREATE FUNCTION lossCount (@id INT)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @result INT;
+
+	SELECT @result = ISNULL(COUNT(ID), 0)
+	FROM Game
+	WHERE ([Home Team ID] = @id OR [Visitor ID] = @id) AND Winner <> @id;
+
+	RETURN @result;
+END
+
+
